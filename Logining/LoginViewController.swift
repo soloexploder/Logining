@@ -12,16 +12,26 @@ class LoginViewController: UIViewController {
     @IBOutlet weak var userTF: UITextField!
     @IBOutlet weak var passwordTF: UITextField!
     
-    private let name = "User"
-    private let password = "qwerty"
+    private let user = User.getUserData()
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        guard let welcomeVC = segue.destination as? WelcomViewController else {return }
-        welcomeVC.userName = name
+        guard let tabBarController = segue.destination as? UITabBarController else {return}
+        guard let viewControllers = tabBarController.viewControllers else {return}
+        
+        viewControllers.forEach {
+            if let welcomeVC = $0 as? WelcomViewController {
+                welcomeVC.userName = user
+            }else if let navigationVC = $0 as? UINavigationController {
+                let aboutVC = navigationVC.topViewController as! AboutViewController
+                aboutVC.user = user
+                }
+        }
     }
+
+    
     
     @IBAction func loginTapped() {
-        if userTF.text != name || passwordTF.text != password {
+        if userTF.text != user.login || passwordTF.text != user.password {
             showAlert(with: "Oops!",
                       and: "Username or password is wrong",
                       textField: passwordTF)
@@ -33,8 +43,8 @@ class LoginViewController: UIViewController {
   
     @IBAction func getUserPass(_ sender: UIButton) {
         sender.tag == 0
-        ? showAlert(with: "Oops!", and: "Your name is \(name) 😉")
-        : showAlert(with: "Oops!", and: "Your password is \(password)")
+            ? showAlert(with: "Oops!", and: "Your name is \(user.login) 😉")
+            : showAlert(with: "Oops!", and: "Your password is \(user.password)")
     }
     
     @IBAction func unwind(for segue: UIStoryboardSegue) {
